@@ -10,3 +10,5 @@ class OrderSerializer(serializers.ModelSerializer):
         # Set the 'user' field to the currently logged-in user
         validated_data['user'] = self.context['request'].user
         return super(OrderSerializer, self).create(validated_data)
+    
+    

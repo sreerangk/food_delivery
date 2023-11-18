@@ -5,7 +5,8 @@ from user_management.views import UserLoginView, CustomerRegistrationView,Delive
 
 urlpatterns = [
     path('register/customer/', CustomerRegistrationView.as_view(), name='customer-register'),
-    path('register/delivery-agent/', DeliveryAgentRegistrationView.as_view(), name='delivery-agent-register'),    path('login/', UserLoginView.as_view(), name='user-login'),
+    path('register/delivery-agent/', DeliveryAgentRegistrationView.as_view(), name='delivery-agent-register'),   
+
     path('login/', UserLoginView.as_view(), name='user-login'),
 
 ]

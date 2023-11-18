@@ -28,22 +28,15 @@ class BaseUserRegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Password must be at least {min_password_length} characters long.")
 
         # Phone number validation
-        if not re.match("^[0-9]+$", phone_number):
-            raise serializers.ValidationError("Invalid phone number. It should contain only numeric characters.")
-        if len(phone_number) != 10:
-            raise serializers.ValidationError("Invalid phone number. It should have exactly 10 digits.")
+        if not re.match("^[0-9]+$", phone_number) or len(phone_number) != 10:
+            raise serializers.ValidationError("Invalid phone number. It should contain only numeric characters and have exactly 10 digits.")
 
         return data
-
-    def create(self, validated_data, is_customer=False, is_delivery_agent=False):
+    def create(self, validated_data, **extra_fields):
         validated_data.pop('confirm_password', None)
         password = validated_data.pop('password', None)
 
-        user = CustomUser.objects.create_user(
-            is_customer=is_customer,
-            is_delivery_agent=is_delivery_agent,
-            **validated_data
-        )
+        user = CustomUser.objects.create_user(**validated_data, **extra_fields)
 
         if password:
             user.set_password(password)
@@ -57,6 +50,7 @@ class CustomerRegisterSerializer(BaseUserRegisterSerializer):
         fields = BaseUserRegisterSerializer.Meta.fields + ['is_customer']
 
     def create(self, validated_data):
+        is_delivery_agent = validated_data.pop('is_customer', False)
         return super().create(validated_data, is_customer=True)
 
 class DeliveryAgentRegisterSerializer(BaseUserRegisterSerializer):
@@ -64,6 +58,7 @@ class DeliveryAgentRegisterSerializer(BaseUserRegisterSerializer):
         fields = BaseUserRegisterSerializer.Meta.fields + ['is_delivery_agent']
 
     def create(self, validated_data):
+        is_delivery_agent = validated_data.pop('is_delivery_agent', False)
         return super().create(validated_data, is_delivery_agent=True)
     
 class CustomUserSerializer(serializers.Serializer):
