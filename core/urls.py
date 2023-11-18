@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('user_management.urls')),
     path('api/products/', include('product_management.urls')),
-    # path('api/orders/', include('order_management.urls')),
+    path('api/orders/', include('order_management.urls')),
     # path('api/notification/', include('notification_management.urls')),
     # path('api/bulk_upload/', include('bulk_upload_management.urls')),
 
