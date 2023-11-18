@@ -4,7 +4,19 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Order
 from .serializers import OrderSerializer
 from django.utils.datastructures import MultiValueDict
+from django.utils import timezone
+from rest_framework import generics, permissions, status
 
+from order_management import serializers
+from rest_framework.serializers import ValidationError
+
+
+class IsOrderOwner(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of an order to view or cancel it.
+    """
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user
 
 class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()
@@ -25,8 +37,34 @@ class OrderCreateView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-
 class OrderListView(generics.ListAPIView):
-    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Retrieve orders for the logged-in user
+        return Order.objects.filter(user=self.request.user)
+    
+
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOrderOwner]
+    queryset = Order.objects.all()
+
+    def perform_update(self, serializer):
+        # Check if the order is within 30 minutes of creation for cancellation
+        order = self.get_object()
+        if (timezone.now() - order.created_at).seconds < 1800:
+            serializer.save(status='CANCELLED')
+        else:
+            # Order cannot be cancelled after 30 minutes
+            raise ValidationError("Cannot cancel order after 30 minutes of creation")
+
+    def perform_destroy(self, instance):
+        if (timezone.now() - instance.created_at).seconds < 1800: 
+            instance.status = 'CANCELLED'
+            instance.save()
+        else:
+            raise ValidationError("Cannot cancel order after 30 minutes of creation")
+        
+        
