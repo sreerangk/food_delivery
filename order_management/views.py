@@ -1,15 +1,17 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+
+from product_management.permissions import IsAdminOrReadOnly
 from .models import Order
 from .serializers import OrderSerializer
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
 from rest_framework import generics, permissions, status
 
-from order_management import serializers
 from rest_framework.serializers import ValidationError
-
+from .models import OrderAssignment
+from .serializers import OrderAssignmentSerializer
 
 class IsOrderOwner(permissions.BasePermission):
     """
@@ -68,3 +70,15 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
             raise ValidationError("Cannot cancel order after 30 minutes of creation")
         
         
+class OrderAssignmentListCreateView(generics.ListCreateAPIView):
+    serializer_class = OrderAssignmentSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        # Only show the list of assigned orders
+        return OrderAssignment.objects.filter(delivery_agent__isnull=False)
+
+class OrderAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrderAssignment.objects.all()
+    serializer_class = OrderAssignmentSerializer
+    permission_classes = [IsAdminOrReadOnly]

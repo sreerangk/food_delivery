@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Order
+
+from user_management.models import CustomUser
+from .models import Order, OrderAssignment
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,3 +14,11 @@ class OrderSerializer(serializers.ModelSerializer):
         return super(OrderSerializer, self).create(validated_data)
     
     
+class OrderAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderAssignment
+        fields = ['id', 'order', 'delivery_agent', 'assigned_at']
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'delivery_agent': {'queryset': CustomUser.objects.filter(is_delivery_agent=True)}
+        }

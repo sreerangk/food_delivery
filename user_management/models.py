@@ -28,13 +28,20 @@ class CustomUser(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
     is_delivery_agent = models.BooleanField(default=False)
-    is_blocked = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
+
+    def block_user(self):
+        self.is_active = False
+        self.save()
+
+    def unblock_user(self):
+        self.is_active = True
+        self.save()
 
     def has_perm(self, perm, obj=None):
         return self.is_staff

@@ -24,7 +24,6 @@ class Order(models.Model):
     ]
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='COD')
     created_at = models.DateTimeField(auto_now_add=True)
-    # Updated status field to include 'PENDING', 'CANCELLED', and 'DELIVERED'
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
         ('CANCELLED', 'Cancelled'),

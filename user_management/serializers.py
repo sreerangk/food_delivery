@@ -80,3 +80,10 @@ class CustomUserSerializer(serializers.Serializer):
             raise serializers.ValidationError('Must include "email" and "password".')
 
         return data
+    
+
+class UserBlockSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+class UserUnblockSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
