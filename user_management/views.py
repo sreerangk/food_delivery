@@ -58,7 +58,6 @@ class UserLoginView(APIView):
         user = serializer.validated_data['user']
         if user.is_deleted:
             return Response({'detail': 'User account is deleted.'}, status=status.HTTP_400_BAD_REQUEST)
-
         token, created = Token.objects.get_or_create(user=user)
 
         return Response({'token': token.key}, status=status.HTTP_200_OK)

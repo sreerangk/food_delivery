@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'user_management',
     'product_management',
     'order_management',
-    'notification_management',
     'bulk_upload_management',
     'rest_framework',
     'rest_framework.authtoken',

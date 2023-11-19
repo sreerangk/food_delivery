@@ -2,6 +2,7 @@ from django.db import models
 from product_management.models import Product
 
 from user_management.models import CustomUser
+import random
 
 # Create your models here.
     
@@ -28,10 +29,27 @@ class Order(models.Model):
         ('PENDING', 'Pending'),
         ('CANCELLED', 'Cancelled'),
         ('DELIVERED', 'Delivered'),
+        ('CONFIRM-DELIVERED','confirm-delivered')
     ]
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='PENDING')
     assignment = models.OneToOneField(OrderAssignment, null=True, blank=True, on_delete=models.SET_NULL, related_name='order_assignment')
     is_pending = models.BooleanField(default=True)
+    otp = models.CharField(max_length=6, blank=True)
+    
+    def generate_otp(self):
+        # Generate a 6-digit OTP
+        return str(random.randint(100000, 999999))
 
+    def save(self, *args, **kwargs):
+        # Check if the status is being changed to "DELIVERED"
+        if self.id and self.status == 'DELIVERED' and self.status != self.__class__.objects.get(id=self.id).status:
+            # Generate and set the OTP
+            self.otp = self.generate_otp()
+
+            # Additional logic for sending the OTP to the customer
+            # You may want to use a notification system or trigger an email here
+
+        super(Order, self).save(*args, **kwargs)
+        
     def __str__(self):
         return f"Order #{self.id} - {self.user.email}"
