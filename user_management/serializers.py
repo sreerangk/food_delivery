@@ -81,9 +81,3 @@ class CustomUserSerializer(serializers.Serializer):
 
         return data
     
-
-class UserBlockSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
-
-class UserUnblockSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()

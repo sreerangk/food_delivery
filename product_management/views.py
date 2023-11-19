@@ -2,32 +2,31 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 
-from product_management.permissions import IsAdminOrReadOnly
+from product_management.permissions import IsAdmin
 from .models import Product
 from .serializers import ProductSerializer
-from rest_framework.permissions import IsAuthenticated
 
 
 class ProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     
 
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
 class ProductDeleteView(generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

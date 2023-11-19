@@ -1,5 +1,8 @@
+from datetime import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+
+from user_management.soft_delete.soft_delete_mixin import SoftDeleteMixin
 
 # Create your models here.
 class CustomUserManager(BaseUserManager):
@@ -18,7 +21,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class CustomUser(AbstractBaseUser):
+class CustomUser(SoftDeleteMixin,AbstractBaseUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -28,6 +31,7 @@ class CustomUser(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
     is_delivery_agent = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
@@ -51,4 +55,5 @@ class CustomUser(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
 

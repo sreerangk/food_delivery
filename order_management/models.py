@@ -31,7 +31,7 @@ class Order(models.Model):
     ]
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='PENDING')
     assignment = models.OneToOneField(OrderAssignment, null=True, blank=True, on_delete=models.SET_NULL, related_name='order_assignment')
-
+    is_pending = models.BooleanField(default=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.user.email}"

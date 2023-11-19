@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'bulk_upload_management',
     'rest_framework',
     'rest_framework.authtoken',
+    'softdelete',
 ]
 
  

@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class IsAdmin(permissions.BasePermission):
     """
     Custom permission to only allow admin access to the view.
     """

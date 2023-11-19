@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from product_management.permissions import IsAdminOrReadOnly
+from product_management.permissions import IsAdmin
 from .models import Order
 from .serializers import OrderSerializer
 from django.utils.datastructures import MultiValueDict
@@ -30,6 +30,7 @@ class OrderCreateView(generics.CreateAPIView):
 
         # Set the user as the currently logged-in user
         mutable_data['user'] = request.user.id
+        mutable_data['is_pending'] = True
 
         serializer = self.get_serializer(data=mutable_data)
         serializer.is_valid(raise_exception=True)
@@ -58,6 +59,8 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         order = self.get_object()
         if (timezone.now() - order.created_at).seconds < 1800:
             serializer.save(status='CANCELLED')
+            order.is_pending = False
+            order.save()
         else:
             # Order cannot be cancelled after 30 minutes
             raise ValidationError("Cannot cancel order after 30 minutes of creation")
@@ -65,6 +68,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         if (timezone.now() - instance.created_at).seconds < 1800: 
             instance.status = 'CANCELLED'
+            instance.is_pending = False
             instance.save()
         else:
             raise ValidationError("Cannot cancel order after 30 minutes of creation")
@@ -72,7 +76,7 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         
 class OrderAssignmentListCreateView(generics.ListCreateAPIView):
     serializer_class = OrderAssignmentSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
     def get_queryset(self):
         # Only show the list of assigned orders
@@ -81,4 +85,4 @@ class OrderAssignmentListCreateView(generics.ListCreateAPIView):
 class OrderAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderAssignment.objects.all()
     serializer_class = OrderAssignmentSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
