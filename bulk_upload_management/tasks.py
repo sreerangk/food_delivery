@@ -37,9 +37,10 @@ def bulk_upload_products(self, data):
                         image=item.get('image'),
                         price=item.get('price')
                     )
-                # Update progress
+                # Update progress, way to represent progress, where 0% indicates no progress, and 100% indicates completion
                 processed_items += 1
-                self.update_state(state='PROGRESS')
+                progress = processed_items / total_items * 100
+                self.update_state(state='PROGRESS', meta={'progress': progress})
 
     except Exception as e:
         self.update_state(state='FAILURE', meta={'message': str(e)})
