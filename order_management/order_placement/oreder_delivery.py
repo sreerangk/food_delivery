@@ -37,7 +37,7 @@ class UpdateOrderStatusView(generics.UpdateAPIView):
 class OTPConfirmationView(generics.UpdateAPIView):
     queryset = Order.objects.all()
     serializer_class = OTPConfirmationSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated,IsDeliveryAgent]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

@@ -3,7 +3,9 @@ from product_management.models import Product
 
 from user_management.models import CustomUser
 import random
-
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 # Create your models here.
     
 class OrderAssignment(models.Model):
@@ -35,7 +37,13 @@ class Order(models.Model):
     assignment = models.OneToOneField(OrderAssignment, null=True, blank=True, on_delete=models.SET_NULL, related_name='order_assignment')
     is_pending = models.BooleanField(default=True)
     otp = models.CharField(max_length=6, blank=True)
-    
+ 
+    def send_otp_email(self, otp):
+        # Send an email to the user with the OTP
+        subject = 'Your OTP for Order #{0}'.format(self.id)
+        message = 'Your OTP for Order #{0} is: {1}'.format(self.id, otp)
+        send_mail(subject, message, 'helpa077637@gmail.com', [self.user.email])
+
     def generate_otp(self):
         # Generate a 6-digit OTP
         return str(random.randint(100000, 999999))
@@ -48,6 +56,7 @@ class Order(models.Model):
 
             # Additional logic for sending the OTP to the customer
             # You may want to use a notification system or trigger an email here
+            self.send_otp_email(self.otp)
 
         super(Order, self).save(*args, **kwargs)
         
