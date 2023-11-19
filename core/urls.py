@@ -24,6 +24,6 @@ urlpatterns = [
     path('api/users/', include('user_management.urls')),
     path('api/products/', include('product_management.urls')),
     path('api/orders/', include('order_management.urls')),
-    # path('api/bulk_upload/', include('bulk_upload_management.urls')),
+    path('api/bulk_upload/', include('bulk_upload_management.urls')),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
