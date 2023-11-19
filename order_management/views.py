@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from product_management.permissions import IsAdmin
+from user_management.utils import send_order_assignment_notification, send_order_cancellation_notification
 from .models import Order
 from .serializers import OrderSerializer
 from django.utils.datastructures import MultiValueDict
@@ -58,21 +59,34 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Check if the order is within 30 minutes of creation for cancellation
         order = self.get_object()
         if (timezone.now() - order.created_at).seconds < 1800:
-            serializer.save(status='CANCELLED')
-            order.is_pending = False
-            order.save()
+            try:
+                order.status = 'CANCELLED'
+                order.is_pending = False
+                order.save()
+                self.custom_function(order)
+            except ValidationError as e:
+                print(f"Validation Error: {e}")
         else:
             # Order cannot be cancelled after 30 minutes
             raise ValidationError("Cannot cancel order after 30 minutes of creation")
 
     def perform_destroy(self, instance):
+        instance = self.get_object()
         if (timezone.now() - instance.created_at).seconds < 1800: 
             instance.status = 'CANCELLED'
             instance.is_pending = False
             instance.save()
+            self.custom_function(instance)
         else:
             raise ValidationError("Cannot cancel order after 30 minutes of creation")
-        
+    def custom_function(self, order):
+        user_first_name = order.user.first_name
+        order_id = order.id
+      
+        total_amount = order.total_amount
+        send_order_cancellation_notification(order.user.email, user_first_name=user_first_name,
+        order_id=order_id,
+        total_amount=total_amount)
         
 class OrderAssignmentListCreateView(generics.ListCreateAPIView):
     serializer_class = OrderAssignmentSerializer
@@ -82,7 +96,29 @@ class OrderAssignmentListCreateView(generics.ListCreateAPIView):
         # Only show the list of assigned orders
         return OrderAssignment.objects.filter(delivery_agent__isnull=False)
 
+
+
 class OrderAssignmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderAssignment.objects.all()
     serializer_class = OrderAssignmentSerializer
     permission_classes = [IsAdmin]
+
+    def perform_update(self, serializer):
+        # Get the original assignment before update
+        original_assignment = OrderAssignment.objects.get(pk=self.get_object().pk)
+
+        # Perform the update
+        serializer.save()
+
+        user_email = original_assignment.order.user.email
+        agent_email = original_assignment.delivery_agent.email
+        user_phone_number = original_assignment.order.user.phone_number
+
+        order_details = {
+            'user_email': user_email,
+            'agent_email': agent_email,
+            'user_phone_number': user_phone_number,
+        }
+
+        # Send email to both the user and the assigned agent
+        send_order_assignment_notification(user_email, agent_email, user_phone_number, order_details)

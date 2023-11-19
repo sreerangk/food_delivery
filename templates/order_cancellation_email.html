@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Cancellation Notification</title>
+</head>
+
+<body style="font-family: 'Helvetica', sans-serif;">
+
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd;">
+
+        <h2 style="color: #e74c3c;">Order Cancellation Notification</h2>
+
+        <p>
+            Dear {{ user_first_name }},
+        </p>
+
+        <p>
+            We regret to inform you that your recent food order has been canceled. Please see the details below:
+        </p>
+
+        <strong>Order ID:</strong> {{ order_id }}<br>
+        <strong>Total Amount:</strong> {{ total_amount }}<br>
+
+        <p>
+            If you have any questions or concerns, please feel free to contact our customer support.
+        </p>
+
+        <p>
+            Thank you for choosing our Food Delivery System.
+        </p>
+
+        <p>
+            Best regards,<br>
+            food-delivery.com
+        </p>
+
+    </div>
+
+</body>
+
+</html>
