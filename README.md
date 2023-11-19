@@ -70,6 +70,10 @@ Product Section:
 View a list of available food products with details.
 Order Section:
 
+Explore our API endpoints and test requests using [Postman Documentation]
+( https://www.postman.com/winter-meadow-5288/workspace/my-workspace/folder/24868897-260a2636-45ed-4c98-a947-c52dd9085ae8?action=share&creator=24868897&ctx=documentation ).
+
+
 Create orders with multiple products and Cash on Delivery option.
 View and manage their own orders.
 Cancel orders within 30 minutes of creation.
